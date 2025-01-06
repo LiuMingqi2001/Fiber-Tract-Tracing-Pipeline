@@ -1,19 +1,31 @@
 # Fiber Tract Tracing Pipeline
 
-This repository contains a pipeline for processing diffusion MRI (dMRI) data. It performs fiber tract tracing from the striatum to the cortex, generating 72-dimensional connectivity features for each voxel. The modular workflow supports both hemispheres dynamically.
+This repository provides a complete pipeline for processing diffusion MRI (dMRI) data. It traces fiber tracts from the striatum to the cortex, generating 72-dimensional connectivity features for each voxel. The workflow supports dynamic processing for both hemispheres.
+
+---
 
 ## Prerequisites
 
 ### Software Dependencies
 
-- Python 3.6+
-- `nibabel`
-- `numpy`
-- `scipy`
-- `sklearn`
-- FSL (installed and accessible via the command line)
+Ensure the following are installed:
 
-### Directory Structure
+- Python 3.6+
+- Python Libraries:
+  - `nibabel`
+  - `numpy`
+  - `scipy`
+  - `sklearn`
+- FSL (accessible via the command line)
+
+Verify FSL installation and access with:
+```bash
+which fsl
+```
+
+---
+
+## Directory Structure
 
 Organize your data as follows:
 
@@ -32,53 +44,80 @@ Organize your data as follows:
     ...
 ```
 
-## Pipeline Steps
+---
 
-### 1. Downsampling and Mask Generation
+## Pipeline Workflow
+
+### Step 1: Downsampling and Mask Generation
 
 **Script:** `generate_masks.py`
 
-- Downsamples T1 and DTI data.
-- Generates low-resolution masks for various brain regions (e.g., striatum, cortex, white matter).
+- Downsamples T1-weighted and DTI data.
+- Generates low-resolution masks for brain regions:
+  - Striatum
+  - Cortex
+  - White matter
 
-### 2. Seed Generation for Fiber Tractography
+---
+
+### Step 2: Seed Generation for Fiber Tractography
 
 **Script:** `generate_seeds.py`
 
-- Processes T1 segmentation to produce seed masks for both hemispheres.
+- Processes T1 segmentation to produce seed masks for probabilistic tractography.
+- Supports dynamic seed generation for left (`L`) and right (`R`) hemispheres.
 
-### 3. Running BedpostX
+---
+
+### Step 3: Running BedpostX
 
 **Script:** `run_bedpostx.py`
 
-- Prepares data and runs BedpostX to model fiber orientations.
+- Prepares input data and executes BedpostX for modeling fiber orientations.
+- Utilizes GPU acceleration where available.
 
-### 4. Running TractSeg
+---
+
+### Step 4: Running TractSeg
 
 **Script:** `run_tractseg.py`
 
-- Segments major fiber bundles using TractSeg and downscales the outputs.
+- Segments major fiber bundles using TractSeg.
+- Downscales the segmented outputs for computational efficiency.
 
-### 5. Running ProbtrackX2
+---
+
+### Step 5: Running ProbtrackX2
 
 **Script:** `run_probtrack.py`
 
-- Executes probabilistic tractography to compute connectivity matrices for left and right hemispheres.
+- Executes probabilistic tractography to compute connectivity matrices.
+- Processes left and right hemispheres dynamically.
 
-### 6. Post-processing and Feature Extraction
+---
+
+### Step 6: Post-processing and Feature Extraction
 
 **Script:** `post_probtrack.py`
 
-- Converts connectivity matrices into sparse format.
-- Computes 72-dimensional connectivity fingerprints for each voxel.
+- Converts connectivity matrices into compressed sparse format.
+- Extracts 72-dimensional connectivity fingerprints for each voxel.
+
+---
 
 ## Configuration
 
-Modify `data_directory` in the scripts to point to the root of your dataset. All scripts are designed to process multiple subjects automatically.
+Update `data_directory` in the scripts to point to the root of your dataset:
 
-## Running the Pipeline
+```python
+data_directory = "/path/to/your/dataset"
+```
 
-Run the scripts in sequence:
+---
+
+## Execution
+
+Run the pipeline sequentially:
 
 ```bash
 python generate_masks.py
@@ -89,27 +128,48 @@ python run_probtrack.py
 python post_probtrack.py
 ```
 
+---
+
 ## Outputs
 
-- **Processed Masks and Segmentations:** Stored in subject-specific folders.
-- **Connectivity Features:** Saved as `finger_print_fiber_R.npz` and `finger_print_fiber_L.npz` for each hemisphere.
+- **Processed Masks and Segmentations:**
+  - Stored in subject-specific directories.
+- **Connectivity Features:**
+  - `finger_print_fiber_R.npz`
+  - `finger_print_fiber_L.npz`
+
+These files are saved in the `probtrackx_*_omatrix2` subdirectories for each subject.
+
+---
 
 ## Customization
 
-- Hemisphere-specific parameters (e.g., `R` and `L`) are passed dynamically.
-- Adjust tractography settings (e.g., `-P 5000`) in `run_probtrack.py`.
+- **Hemisphere-specific Parameters:** Dynamically handled via script arguments.
+- **Tractography Parameters:** Adjustable in `run_probtrack.py` (e.g., `-P 5000` for the number of streamline samples).
+
+---
 
 ## Troubleshooting
 
-- Ensure FSL binaries are accessible in `$PATH`.
-- Verify the input directory structure and file integrity.
-- Check log outputs for errors during execution.
+- **FSL Accessibility:** Ensure FSL binaries are in your `$PATH`.
+- **Input Files:** Verify the directory structure and ensure all required files exist:
+  - `bvals`
+  - `bvecs`
+  - `data.nii.gz`
+  - `nodif_brain_mask.nii.gz`
+- **Error Logs:** Check terminal outputs for detailed error messages.
+
+---
 
 ## References
 
-- Smith SM, et al. (2004). Advances in functional and structural MR image analysis and implementation as FSL. *NeuroImage*, 23(S1):208-219.
-- [FSL - FMRIB Software Library](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/)
+1. Smith SM, et al. (2004). Advances in functional and structural MR image analysis and implementation as FSL. *NeuroImage*, 23(S1):208-219.
+2. [FSL - FMRIB Software Library](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/)
+3. Wasserthal J, et al. (2019). TractSeg - Fast and accurate white matter tract segmentation. *NeuroImage*, 183:239-253.
+
+---
 
 ## Acknowledgments
 
-We appreciate the contributions of the neuroimaging community and tools like FSL and TractSeg.
+We acknowledge the contributions of the neuroimaging community and tools such as FSL, TractSeg, and associated software that make this pipeline possible.
+
