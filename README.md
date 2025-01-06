@@ -1,6 +1,6 @@
-# README for Fiber Tract Tracing Pipeline
+# Fiber Tract Tracing Pipeline
 
-This pipeline processes diffusion MRI data to perform fiber tract tracing from the striatum to the cortex and generates 72-dimensional fiber tract connectivity features for each voxel. The workflow is modular and handles both hemispheres dynamically.
+This repository contains a pipeline for processing diffusion MRI (dMRI) data. It performs fiber tract tracing from the striatum to the cortex, generating 72-dimensional connectivity features for each voxel. The modular workflow supports both hemispheres dynamically.
 
 ## Prerequisites
 
@@ -11,11 +11,11 @@ This pipeline processes diffusion MRI data to perform fiber tract tracing from t
 - `numpy`
 - `scipy`
 - `sklearn`
-- FSL (installed and accessible via command line)
+- FSL (installed and accessible via the command line)
 
 ### Directory Structure
 
-Ensure the data is organized as follows:
+Organize your data as follows:
 
 ```
 /home/test/lmq/data/HCP/
@@ -39,7 +39,7 @@ Ensure the data is organized as follows:
 **Script:** `generate_masks.py`
 
 - Downsamples T1 and DTI data.
-- Generates low-resolution masks for various brain regions (striatum, cortex, white matter).
+- Generates low-resolution masks for various brain regions (e.g., striatum, cortex, white matter).
 
 ### 2. Seed Generation for Fiber Tractography
 
@@ -74,11 +74,11 @@ Ensure the data is organized as follows:
 
 ## Configuration
 
-All scripts are set up to process multiple subjects automatically. Modify `data_directory` to point to your dataset root.
+Modify `data_directory` in the scripts to point to the root of your dataset. All scripts are designed to process multiple subjects automatically.
 
 ## Running the Pipeline
 
-Run each script in sequence to complete the pipeline:
+Run the scripts in sequence:
 
 ```bash
 python generate_masks.py
@@ -89,19 +89,27 @@ python run_probtrack.py
 python post_probtrack.py
 ```
 
-## Output
+## Outputs
 
-- Processed masks and segmentation results are stored in the respective subject folders.
-- Connectivity fingerprints for each hemisphere are saved as `finger_print_fiber_R.npz` and `finger_print_fiber_L.npz`.
+- **Processed Masks and Segmentations:** Stored in subject-specific folders.
+- **Connectivity Features:** Saved as `finger_print_fiber_R.npz` and `finger_print_fiber_L.npz` for each hemisphere.
 
 ## Customization
 
-- Parameters for hemisphere-specific processing (e.g., `R` and `L`) are passed dynamically to avoid code duplication.
-- Adjust tractography parameters (e.g., `-P 5000`) directly in `run_probtrack.py` if needed.
+- Hemisphere-specific parameters (e.g., `R` and `L`) are passed dynamically.
+- Adjust tractography settings (e.g., `-P 5000`) in `run_probtrack.py`.
 
 ## Troubleshooting
 
-- Ensure FSL binaries are accessible via `$PATH`.
-- Verify input files and directory structure before running the scripts.
-- Check log outputs for errors during intermediate steps.
+- Ensure FSL binaries are accessible in `$PATH`.
+- Verify the input directory structure and file integrity.
+- Check log outputs for errors during execution.
 
+## References
+
+- Smith SM, et al. (2004). Advances in functional and structural MR image analysis and implementation as FSL. *NeuroImage*, 23(S1):208-219.
+- [FSL - FMRIB Software Library](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/)
+
+## Acknowledgments
+
+We appreciate the contributions of the neuroimaging community and tools like FSL and TractSeg.
